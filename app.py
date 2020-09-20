@@ -5,14 +5,12 @@ from time import time
 pygame.init()
 pygame.font.init()
 
-monitor = pygame.display.Info()
-
 screen_width = 800
 screen_height = 600
 screen_size = (screen_width, screen_height)
 screen = pygame.display.set_mode(screen_size)
 pygame.display.set_caption("Battlefield")
-pygame.mouse.set_visible(False)
+# pygame.mouse.set_visible(False)
 
 myfont = pygame.font.SysFont("MS Comic Sans", 50)
 
@@ -29,7 +27,7 @@ def hit():
 		return True
 
 class Char:
-	def __init__(self, name ,color=RED, size=50, keys="arrows", points=0):
+	def __init__(self, name ,color=RED, size=40, keys="arrows", points=0):
 		self.name = name
 		self.size = size
 
@@ -104,7 +102,34 @@ class Food:
 		self.pos_x = int(randint(0, screen_width-self.size))
 		self.pos_y = int(randint(0, screen_height-self.size))
 
+def screens(current):
 
+	if current == "menu":
+		pygame.mouse.set_visible(True)
+
+		screen.fill(BLACK)
+		header = myfont.render(f'Battlefield', False, WHITE)
+		new_game_btn = myfont.render(f'New game', False, WHITE)
+		exit_btn = myfont.render(f'Exit', False, WHITE)
+
+		header_w, header_y = header.get_rect().width, header.get_rect().height
+		new_game_btn_w, new_game_btn_h = new_game_btn.get_rect().width, new_game_btn.get_rect().height
+		exit_btn_w, exit_btn_h = exit_btn.get_rect().width, exit_btn.get_rect().height
+
+		screen.blit(header, ((int(screen_width/2))-(int(header_w/2)),50))
+		screen.blit(new_game_btn, ((int(screen_width/2))-(int(new_game_btn_w/2)),screen_height - ((new_game_btn_h*2)+50)))
+		screen.blit(exit_btn, ((int(screen_width/2))-(int(exit_btn_w/2)),screen_height - (exit_btn_h*2)))
+	
+	elif current == "game":
+		pygame.mouse.set_visible(False)
+
+		screen.fill(BLACK)	
+		player.move()
+		enemy.move()
+		player.draw()
+		enemy.draw()
+		food.draw()
+		
 #Config - game
 FPS = 60
 speed = 10
@@ -113,6 +138,7 @@ player = Char(name="player")
 enemy = Char(name="enemy",color=GREEN, keys="wasd")
 food = Food(size=30)
 clock = pygame.time.Clock()
+current = "menu"
 
 full_screen = False
 run = True
@@ -129,26 +155,24 @@ while run:
 
 			elif event.key == pygame.K_f:
 				if not full_screen:
-					pygame.display.set_mode((monitor.current_w, monitor.current_h), pygame.FULLSCREEN)
-					
+					pygame.display.set_mode(screen_size, pygame.FULLSCREEN)
 					full_screen = True
 				else:
 					pygame.display.set_mode(screen_size)
 					full_screen = not full_screen
+		elif event.type == pygame.MOUSEBUTTONUP:
+			if event.button == 1:
+				print(event.pos)
 
-			elif event.key == pygame.K_r:
-				print(f'{pygame.display.Info().current_w}x{pygame.display.Info().current_h}')
-
+	if keys[pygame.K_1]:
+		current = "menu"
+	if keys[pygame.K_2]:
+		current = "game"
 	if hit():
 		food.random_pos()
-
-	screen.fill(BLACK)	
-	player.move()
-	enemy.move()
-	player.draw()
-	enemy.draw()
-	food.draw()
+	
+	screens(current)
 	clock.tick(FPS)
 	pygame.display.flip()
-
+	
 pygame.quit()

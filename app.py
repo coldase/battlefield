@@ -7,8 +7,8 @@ pygame.font.init()
 
 monitor = pygame.display.Info()
 
-screen_width = 1280
-screen_height = 720
+screen_width = 800
+screen_height = 600
 screen_size = (screen_width, screen_height)
 screen = pygame.display.set_mode(screen_size)
 pygame.display.set_caption("Battlefield")
@@ -134,7 +134,7 @@ while run:
 					full_screen = True
 				else:
 					pygame.display.set_mode(screen_size)
-					full_screen = False
+					full_screen = not full_screen
 
 			elif event.key == pygame.K_r:
 				print(f'{pygame.display.Info().current_w}x{pygame.display.Info().current_h}')

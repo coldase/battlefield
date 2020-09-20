@@ -9,6 +9,7 @@ screen_width = 1280
 screen_height = 720
 screen_size = (screen_width, screen_height)
 screen = pygame.display.set_mode(screen_size)
+pygame.display.set_caption("Battlefield")
 pygame.mouse.set_visible(False)
 
 myfont = pygame.font.SysFont("MS Comic Sans", 50)
@@ -144,5 +145,5 @@ while run:
 	food.draw()
 	clock.tick(FPS)
 	pygame.display.flip()
-	
+
 pygame.quit()

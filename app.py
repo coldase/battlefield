@@ -5,6 +5,8 @@ from time import time
 pygame.init()
 pygame.font.init()
 
+monitor = pygame.display.Info()
+
 screen_width = 1280
 screen_height = 720
 screen_size = (screen_width, screen_height)
@@ -127,12 +129,15 @@ while run:
 
 			elif event.key == pygame.K_f:
 				if not full_screen:
-					pygame.display.set_mode(screen_size, pygame.FULLSCREEN)
+					pygame.display.set_mode((monitor.current_w, monitor.current_h), pygame.FULLSCREEN)
 					
 					full_screen = True
 				else:
 					pygame.display.set_mode(screen_size)
 					full_screen = False
+
+			elif event.key == pygame.K_r:
+				print(f'{pygame.display.Info().current_w}x{pygame.display.Info().current_h}')
 
 	if hit():
 		food.random_pos()

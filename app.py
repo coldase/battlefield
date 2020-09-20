@@ -9,6 +9,7 @@ screen_width = 1280
 screen_height = 720
 screen_size = (screen_width, screen_height)
 screen = pygame.display.set_mode(screen_size)
+pygame.mouse.set_visible(False)
 
 myfont = pygame.font.SysFont("MS Comic Sans", 50)
 
@@ -18,7 +19,11 @@ BLACK = (0,0,0)
 GREEN = (0,255,0)
 WHITE = (255,255,255)
 
-
+def hit():
+	if player.check_collision((food.pos_x, food.pos_y), food.size):
+		return True
+	if enemy.check_collision((food.pos_x, food.pos_y), food.size):
+		return True
 
 class Char:
 	def __init__(self, name ,color=RED, size=50, keys="arrows", points=0):
@@ -35,10 +40,8 @@ class Char:
 		self.keys = keys
 		self.points = points
 
-	def draw_char(self):
+	def draw(self):
 		pygame.draw.rect(screen, self.color, (self.pos_x, self.pos_y, self.size,self.size))
-
-	def draw_points(self):
 		if self.name == "player":
 			p = str(self.points)
 			count = myfont.render(f'Player: {p}', False, self.color)
@@ -47,7 +50,6 @@ class Char:
 			p = str(self.points)
 			count = myfont.render(f'Enemy: {p}', False, self.color)
 			screen.blit(count, (50,100))
-
 
 	def get_pos(self):
 		pos_x, pos_y = self.pos_x, self.pos_y
@@ -86,7 +88,7 @@ class Food:
 		self.color = color
 		self.size = size
 		self.pos_x = int((screen_width / 2) + (self.size/2))
-		self.pos_y = int((screen_height/2)-(self.size/2))
+		self.pos_y = int((screen_height/2) - (self.size/2))
 
 	def draw(self):
 		pygame.draw.rect(screen, self.color, (self.pos_x, self.pos_y, self.size,self.size))
@@ -107,10 +109,11 @@ speed = 10
 player = Char(name="player")
 enemy = Char(name="enemy",color=GREEN, keys="wasd")
 food = Food(size=30)
-
 clock = pygame.time.Clock()
+
 full_screen = False
 run = True
+
 while run:
 	keys = pygame.key.get_pressed()
 
@@ -124,23 +127,22 @@ while run:
 			elif event.key == pygame.K_f:
 				if not full_screen:
 					pygame.display.set_mode(screen_size, pygame.FULLSCREEN)
+					
 					full_screen = True
 				else:
 					pygame.display.set_mode(screen_size)
 					full_screen = False
 
-	if player.check_collision((food.pos_x, food.pos_y), food.size) or enemy.check_collision((food.pos_x, food.pos_y), food.size):
+	if hit():
 		food.random_pos()
+
 	screen.fill(BLACK)	
 	player.move()
 	enemy.move()
-	player.draw_char()
-	enemy.draw_char()
+	player.draw()
+	enemy.draw()
 	food.draw()
-	player.draw_points()
-	enemy.draw_points()
 	clock.tick(FPS)
 	pygame.display.flip()
 	
-
 pygame.quit()

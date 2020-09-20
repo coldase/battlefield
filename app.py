@@ -1,6 +1,5 @@
 import pygame
 from random import randint
-from time import time
 
 pygame.init()
 pygame.font.init()
@@ -10,8 +9,6 @@ screen_height = 600
 screen_size = (screen_width, screen_height)
 screen = pygame.display.set_mode(screen_size)
 pygame.display.set_caption("Battlefield")
-# pygame.mouse.set_visible(False)
-
 myfont = pygame.font.SysFont("MS Comic Sans", 50)
 
 #Colors

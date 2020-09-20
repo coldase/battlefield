@@ -1,96 +1,146 @@
 import pygame
+from random import randint
+from time import time
 
 pygame.init()
+pygame.font.init()
 
 screen_width = 1280
 screen_height = 720
 screen_size = (screen_width, screen_height)
 screen = pygame.display.set_mode(screen_size)
 
-#colors
+myfont = pygame.font.SysFont("MS Comic Sans", 50)
+
+#Colors
 RED = (255,0,0)
 BLACK = (0,0,0)
 GREEN = (0,255,0)
 WHITE = (255,255,255)
 
+
+
 class Char:
-	def __init__(self, name, color, pos_x, pos_y, size):
+	def __init__(self, name ,color=RED, size=50, keys="arrows", points=0):
 		self.name = name
-		self.color = color
-		self.pos_x = pos_x
-		self.pos_y = pos_y
 		self.size = size
 
-	def draw(self):
+		if name == "player":
+			self.pos_x = int(self.size)
+			self.pos_y = int((screen_height/2)-(self.size/2))
+		elif name == "enemy":
+			self.pos_x = int(screen_width - self.size*2)
+			self.pos_y = int((screen_height/2)-(self.size/2))
+		self.color = color
+		self.keys = keys
+		self.points = points
+
+	def draw_char(self):
 		pygame.draw.rect(screen, self.color, (self.pos_x, self.pos_y, self.size,self.size))
-		
+
+	def draw_points(self):
+		if self.name == "player":
+			p = str(self.points)
+			count = myfont.render(f'Player: {p}', False, self.color)
+			screen.blit(count, (50,50))
+		if self.name == "enemy":
+			p = str(self.points)
+			count = myfont.render(f'Enemy: {p}', False, self.color)
+			screen.blit(count, (50,100))
+
+
+	def get_pos(self):
+		pos_x, pos_y = self.pos_x, self.pos_y
+		return pos_x, pos_y
+
+	def check_collision(self, food_pos, food_size):
+		if (self.pos_x + self.size > food_pos[0] and self.pos_x < food_pos[0] + food_size) and (self.pos_y + self.size > food_pos[1] and self.pos_y < food_pos[1] + food_size):
+			self.points += 1
+			print(f'{self.name}: {self.points}')
+			return True
+		else:
+			return False
+
+	def move(self):
+		if self.keys == "arrows":
+			if keys[pygame.K_UP] and self.pos_y > 0:
+				self.pos_y -= speed
+			if keys[pygame.K_DOWN] and self.pos_y < screen_height - self.size:
+				self.pos_y += speed
+			if keys[pygame.K_LEFT] and self.pos_x > 0:
+				self.pos_x -= speed
+			if keys[pygame.K_RIGHT] and self.pos_x < screen_width - self.size:
+				self.pos_x += speed
+		if self.keys == "wasd":
+			if keys[pygame.K_w] and self.pos_y > 0:
+				self.pos_y -= speed
+			if keys[pygame.K_s] and self.pos_y < screen_height - self.size:
+				self.pos_y += speed
+			if keys[pygame.K_a] and self.pos_x > 0:
+				self.pos_x -= speed
+			if keys[pygame.K_d] and self.pos_x < screen_width - self.size:
+				self.pos_x += speed
+
 class Food:
-	def __init__(self, color, pos_x, pos_y, size):
+	def __init__(self, color=WHITE,size=50):
 		self.color = color
-		self.pos_x = pos_x
-		self.pos_y = pos_y
 		self.size = size
+		self.pos_x = int((screen_width / 2) + (self.size/2))
+		self.pos_y = int((screen_height/2)-(self.size/2))
 
 	def draw(self):
 		pygame.draw.rect(screen, self.color, (self.pos_x, self.pos_y, self.size,self.size))
 		
+	def get_pos(self):
+		pos_x, pos_y = self.pos_x, self.pos_y
+		return pos_x, pos_y
 
-	
+	def random_pos(self):
+		self.pos_x = int(randint(0, screen_width-self.size))
+		self.pos_y = int(randint(0, screen_height-self.size))
 
-#Config
+
+#Config - game
 FPS = 60
-
-player_color = RED
-player_size = 50
-player_x = 100
-player_y = 100
 speed = 10
 
-food_color = WHITE
-food_size = 50
-food_x = int((screen_width/2) - (food_size/2))
-food_y = int((screen_height/2) - (food_size/2))
-
+player = Char(name="player")
+enemy = Char(name="enemy",color=GREEN, keys="wasd")
+food = Food(size=30)
 
 clock = pygame.time.Clock()
 full_screen = False
 run = True
 while run:
-
 	keys = pygame.key.get_pressed()
 
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			run = False
-		if event.type == pygame.KEYUP:
-			print(event)
+		elif event.type == pygame.KEYUP:
+			if keys[pygame.K_ESCAPE]:
+				run = False
 
-	if keys[pygame.K_UP] and player_y > 0:
-		player_y -= speed
-	if keys[pygame.K_DOWN] and player_y < screen_height - player_size:
-		player_y += speed
-	if keys[pygame.K_LEFT] and player_x > 0:
-		player_x -= speed
-	if keys[pygame.K_RIGHT] and player_x < screen_width - player_size:
-		player_x += speed
-	
-"""
-	if keys[pygame.K_f]:
-		if not full_screen:
-			pygame.display.set_mode(screen_size, pygame.FULLSCREEN)
-			full_screen = True
-		else:
-			pygame.display.set_mode(screen_size)
-			full_screen = False
-"""
-	if keys[pygame.K_ESCAPE]:
-		run = False
+			elif event.key == pygame.K_f:
+				if not full_screen:
+					pygame.display.set_mode(screen_size, pygame.FULLSCREEN)
+					full_screen = True
+				else:
+					pygame.display.set_mode(screen_size)
+					full_screen = False
 
-	clock.tick(FPS)
-	screen.fill(BLACK)
-	player = Char("player1", player_color, player_x, player_y, player_size)
-	food = Food(food_color, food_x, food_y, food_size)
-	player.draw()
+	if player.check_collision((food.pos_x, food.pos_y), food.size) or enemy.check_collision((food.pos_x, food.pos_y), food.size):
+		food.random_pos()
+	screen.fill(BLACK)	
+	player.move()
+	enemy.move()
+	player.draw_char()
+	enemy.draw_char()
 	food.draw()
+	player.draw_points()
+	enemy.draw_points()
+	clock.tick(FPS)
 	pygame.display.flip()
+	
+
 pygame.quit()

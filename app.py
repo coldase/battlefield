@@ -144,10 +144,15 @@ def screens(current):
 		player.draw_points()
 		enemy.draw_points()
 		playagain_btn = myfont.render(f'Play again', False, WHITE)
-		winner = myfont.render(f'WINS', False, WHITE)
 		playagain_btn_w, playagain_btn_h = playagain_btn.get_rect().width, playagain_btn.get_rect().height
 		screen.blit(playagain_btn, ((int(screen_width/2))-(int(playagain_btn_w/2)),screen_height - ((playagain_btn_h*2)+50)))
-		screen.blit(winner, (100, 100))
+		if player.points > enemy.points:
+			winner = myfont.render(f'wins!!', False, RED)
+			screen.blit(winner, (230, 50))
+		elif player.points < enemy.points:
+			winner = myfont.render(f'wins!!', False, GREEN)
+			screen.blit(winner, (230, 100))
+
 		
 #Config - game
 FPS = 60
@@ -180,11 +185,16 @@ while run:
 					pygame.display.set_mode(screen_size)
 					full_screen = not full_screen
 		elif event.type == pygame.MOUSEBUTTONUP:
-			if event.button == 1:
-				if event.pos[0] > 314 and event.pos[0] < 486 and event.pos[1] > 480 and event.pos[1] < 510 and current == "menu":
+			if event.button == 1 and current == "menu":
+				if event.pos[0] > 314 and event.pos[0] < 486 and event.pos[1] > 480 and event.pos[1] < 510:
 					current = "game"
-				elif  event.pos[0] > 368 and event.pos[0] < 436 and event.pos[1] > 530 and event.pos[1] < 561 and current == "menu":
-					run = False	
+				elif  event.pos[0] > 368 and event.pos[0] < 436 and event.pos[1] > 530 and event.pos[1] < 561:
+					run = False
+			elif event.button == 1 and current == "win":
+				if event.pos[0] > 314 and event.pos[0] < 486 and event.pos[1] > 480 and event.pos[1] < 510:
+					player.points = 0
+					enemy.points = 0
+					current = "menu"
 			if event.button == 3:
 				print(event.pos)
 

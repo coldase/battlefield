@@ -24,7 +24,7 @@ def hit():
 		return True
 
 class Char:
-	def __init__(self, name ,color=RED, size=40, keys="arrows", points=0):
+	def __init__(self, name ,color=RED, size=40, keys="arrows", points=9):
 		self.name = name
 		self.size = size
 
@@ -38,8 +38,10 @@ class Char:
 		self.keys = keys
 		self.points = points
 
-	def draw(self):
+	def draw_character(self):
 		pygame.draw.rect(screen, self.color, (self.pos_x, self.pos_y, self.size,self.size))
+		
+	def draw_points(self):
 		if self.name == "player":
 			p = str(self.points)
 			count = myfont.render(f'Player: {p}', False, self.color)
@@ -48,6 +50,7 @@ class Char:
 			p = str(self.points)
 			count = myfont.render(f'Enemy: {p}', False, self.color)
 			screen.blit(count, (50,100))
+
 
 	def get_pos(self):
 		pos_x, pos_y = self.pos_x, self.pos_y
@@ -99,23 +102,29 @@ class Food:
 		self.pos_x = int(randint(0, screen_width-self.size))
 		self.pos_y = int(randint(0, screen_height-self.size))
 
+def draw_menu_buttons():
+	global new_game_btn
+	global new_game_btn_w
+	global new_game_btn_h
+	new_game_btn = myfont.render(f'New game', False, WHITE)
+	exit_btn = myfont.render(f'Exit', False, WHITE)
+
+	new_game_btn_w, new_game_btn_h = new_game_btn.get_rect().width, new_game_btn.get_rect().height
+	exit_btn_w, exit_btn_h = exit_btn.get_rect().width, exit_btn.get_rect().height
+
+	screen.blit(new_game_btn, ((int(screen_width/2))-(int(new_game_btn_w/2)),screen_height - ((new_game_btn_h*2)+50)))
+	screen.blit(exit_btn, ((int(screen_width/2))-(int(exit_btn_w/2)),screen_height - (exit_btn_h*2)))
+
+
 def screens(current):
 
 	if current == "menu":
 		pygame.mouse.set_visible(True)
-
 		screen.fill(BLACK)
 		header = myfont.render(f'Battlefield', False, WHITE)
-		new_game_btn = myfont.render(f'New game', False, WHITE)
-		exit_btn = myfont.render(f'Exit', False, WHITE)
-
 		header_w, header_y = header.get_rect().width, header.get_rect().height
-		new_game_btn_w, new_game_btn_h = new_game_btn.get_rect().width, new_game_btn.get_rect().height
-		exit_btn_w, exit_btn_h = exit_btn.get_rect().width, exit_btn.get_rect().height
-
 		screen.blit(header, ((int(screen_width/2))-(int(header_w/2)),50))
-		screen.blit(new_game_btn, ((int(screen_width/2))-(int(new_game_btn_w/2)),screen_height - ((new_game_btn_h*2)+50)))
-		screen.blit(exit_btn, ((int(screen_width/2))-(int(exit_btn_w/2)),screen_height - (exit_btn_h*2)))
+		draw_menu_buttons()
 	
 	elif current == "game":
 		pygame.mouse.set_visible(False)
@@ -123,9 +132,22 @@ def screens(current):
 		screen.fill(BLACK)	
 		player.move()
 		enemy.move()
-		player.draw()
-		enemy.draw()
+		player.draw_character()
+		player.draw_points()
+		enemy.draw_character()
+		enemy.draw_points()
 		food.draw()
+
+	elif current == "win":
+		pygame.mouse.set_visible(True)
+		screen.fill(BLACK)
+		player.draw_points()
+		enemy.draw_points()
+		playagain_btn = myfont.render(f'Play again', False, WHITE)
+		winner = myfont.render(f'WINS', False, WHITE)
+		playagain_btn_w, playagain_btn_h = playagain_btn.get_rect().width, playagain_btn.get_rect().height
+		screen.blit(playagain_btn, ((int(screen_width/2))-(int(playagain_btn_w/2)),screen_height - ((playagain_btn_h*2)+50)))
+		screen.blit(winner, (100, 100))
 		
 #Config - game
 FPS = 60
@@ -159,15 +181,21 @@ while run:
 					full_screen = not full_screen
 		elif event.type == pygame.MOUSEBUTTONUP:
 			if event.button == 1:
+				if event.pos[0] > 314 and event.pos[0] < 486 and event.pos[1] > 480 and event.pos[1] < 510 and current == "menu":
+					current = "game"
+				elif  event.pos[0] > 368 and event.pos[0] < 436 and event.pos[1] > 530 and event.pos[1] < 561 and current == "menu":
+					run = False	
+			if event.button == 3:
 				print(event.pos)
 
-	if keys[pygame.K_1]:
-		current = "menu"
-	if keys[pygame.K_2]:
-		current = "game"
+
 	if hit():
 		food.random_pos()
 	
+	if player.points == 10 or enemy.points == 10:
+		current = "win"
+
+
 	screens(current)
 	clock.tick(FPS)
 	pygame.display.flip()
